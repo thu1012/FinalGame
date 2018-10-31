@@ -1,0 +1,12 @@
+{ "columns":1,
+ "image":"Streetlamp (1).png",
+ "imageheight":64,
+ "imagewidth":32,
+ "margin":0,
+ "name":"lamp",
+ "spacing":0,
+ "tilecount":2,
+ "tileheight":32,
+ "tilewidth":32,
+ "type":"tileset"
+}

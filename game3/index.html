@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>K.A.L.</title>
+		<script src="src/phaser.js"></script>
+		
+	</head>
+	<body>
+		<script>
+
+			var config = {
+				type	: Phaser.AUTO,
+				width	: window.innerWidth,
+				height	: window.innerHeight,
+				pixelArt: true,
+				physics	: {
+						default	: 'arcade',
+						arcade	: 		{
+										debug : false
+										}
+				},
+				scene	: {
+					preload	: preload,
+					create	: create,
+					update	: update
+				}
+			}
+
+			var game = new Phaser.Game( config );
+			var player;
+			var cursors;
+			var map;
+			var grassLayer, road2Layer, road1Layer, buildingLowLayer, buildingTopLayer, collisionLayer;
+			var animationset;
+			var text, text2, text3, text4, text5, text6, text7, text8, text9;
+
+			function preload(){
+
+				//PLAYER (Get Player .json)
+				this.load.spritesheet('player', 'assets/player.png', {frameWidth:22, frameHeight:25.5});
+
+				//MAP
+				this.load.tilemapTiledJSON('map', 'assets/map.json');
+
+				this.load.spritesheet('spritesheet', 'assets/spritesheet.png', {frameWidth: 32, frameHeight: 32});
+
+				//IMAGES
+
+
+				//AUDIO
+				this.load.audio('theme', ['assets/audio/lips.wav', 'assets/audio/Imagine.mp3']);
+
+			}
+
+			function create(){
+
+			//WORLD
+
+				//load map
+				map = this.make.tilemap({key: 'map'});
+
+				//tiles for the grass layer
+				var grassTiles = map.addTilesetImage('spritesheet');
+
+				//create the grass layer
+				collisionLayer = map.createDynamicLayer('Collision', grassTiles, 0, 0)
+				grassLayer = map.createDynamicLayer('grass', grassTiles, 0, 0);
+				road2Layer = map.createDynamicLayer('road2', grassTiles, 0, 0);
+				road1Layer = map.createDynamicLayer('road1', grassTiles, 0, 0);
+				buildingLowLayer = map.createDynamicLayer('buildingLow', grassTiles, 0, 0);
+				player = this.physics.add.sprite(200, 600, 'player');
+				buildingTopLayer = map.createDynamicLayer('buildingTop', grassTiles, 0, 0);
+
+				
+
+				//The player will collide with this layer
+				grassLayer.setCollisionByExclusion([-1]);
+				collisionLayer.setCollisionByExclusion([-1]);
+
+				//set the boundaries of our game world
+				this.physics.world.bounds.width 	= grassLayer.width;
+				this.physics.world.bounds.height 	= grassLayer.height;
+
+			//PLAYER
+				
+				
+				player.setCollideWorldBounds(true);
+				player.setSize(19, 39, true);
+
+				//Add Keyboard Events
+				cursors = this.input.keyboard.createCursorKeys();
+				this.physics.add.collider(collisionLayer, player);
+				this.cameras.main.setBounds(0, 0, grassLayer.width, grassLayer.height );
+
+				//make the camera follow the player
+
+				 this.cameras.main.startFollow(player, true, 0.09, 0.09);
+				 
+    // this.cameras.main.roundPixels = true;
+
+    
+
+				//set background color, so the sky is not black
+				this.cameras.main.setBackgroundColor('#696969');
+				
+
+
+				//ANIMATION
+				this.anims.create({
+					key : "walk1",
+					frames: this.anims.generateFrameNames('player', { start: 0, end: 3}),
+					frameRate: 8,
+					repeat: -1 // loop forever
+				});
+
+				this.anims.create({
+					key : "walk2",
+					frames: this.anims.generateFrameNames('player', {start: 4, end: 7}),
+					frameRate: 8,
+					repeat: -1 // loop forever
+				});
+
+				this.anims.create({
+					key : "walk3",
+					frames: this.anims.generateFrameNames('player', {start: 8, end: 11}),
+					frameRate: 8,
+					repeat: -1 // loop forever
+				});
+
+				this.anims.create({
+					key : "walk4",
+					frames: this.anims.generateFrameNames('player', {start: 12, end: 15}),
+					frameRate: 8,
+					repeat: -1 // loop forever
+				});
+
+				this.anims.create({
+					key : "forwards",
+					frames: [{key: 'player', frame:2}],
+					frameRate: 5,
+				});
+
+				this.anims.create({
+					key : "backwards",
+					frames: [{key: 'player', frame:6}],
+					frameRate: 5,
+				});
+
+				this.anims.create({
+					key : "left",
+					frames: [{key: 'player', frame:10}],
+					frameRate: 5,
+				});
+
+				this.anims.create({
+					key : "right",
+					frames: [{key: 'player', frame:14}],
+					frameRate: 5,
+				});
+
+
+				//CAMERA
+				
+				//set bounds so the camera won't go outside the game world
+				
+				
+
+				 
+
+
+
+
+				//AUDIO
+				music 		= this.sound.add( 'theme' );
+
+
+				soundManager( music );
+
+				text = this.add.text(20, 570, '0', {
+					fontSize : '20px',
+					fill: '#ffffff'
+				});
+				text.setScrollFactor(0);
+
+
+
+			}
+
+			function update(){
+
+
+				if( cursors.left.isDown ){ // If the left arrow key is pressed down
+					//activate motion
+					player.body.setVelocityX(-140);
+					player.body.setVelocityY(0);
+					animationset = 15;
+					//activate animation
+					player.anims.play('walk3', true);
+
+				}else if(cursors.up.isDown){  // If the right arrow key is pressed down
+					//activate motion
+					player.body.setVelocityY(-140);
+					player.body.setVelocityX(0);
+					animationset = 10;
+
+					//activate animation
+					player.anims.play('walk2', true);
+
+
+				}
+				else if(cursors.right.isDown){  // If the right arrow key is pressed down
+					//activate motion
+					player.body.setVelocityX(140);
+					player.body.setVelocityY(0);
+					animationset = 20;
+
+
+					//activate animation
+					player.anims.play('walk4', true);
+
+				}
+				else if(cursors.down.isDown){  // If the right arrow key is pressed down
+					//activate motion
+					player.body.setVelocityY(140);
+					player.body.setVelocityX(0);
+					animationset = 5;
+
+					//activate animation
+					player.anims.play('walk1', true);
+
+				}else{
+					player.body.setVelocityX(0);
+					player.body.setVelocityY(0);
+						if(animationset < 6 && animationset > 1){
+							player.anims.play('forwards', true);
+						}
+						if(animationset > 6 && animationset < 12){
+							player.anims.play('backwards', true);
+						}
+						if(animationset >12 && animationset < 17){
+							player.anims.play('left', true);
+						}
+						if(animationset > 17 && animationset < 30){
+							player.anims.play('right', true);
+						}
+				}
+
+				
+
+			}
+
+			function death(){
+
+			}
+
+			function soundManager( clip ){					
+    			clip.play({loop: true});
+			}
+
+		</script>
+	</body>
+</html>
